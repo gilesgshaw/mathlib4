@@ -46,6 +46,19 @@ package mathlib where
   -- Warning: Do not put any options here that actually change the olean files,
   -- or inconsistent behavior may result
   -- weakLeanArgs := #[]
+  moreGlobalServerArgs := #[
+    "-D linter.all=true",
+    "-D linter.missingDocs=false",
+    "-D weak.linter.docPrime=false",
+    "-D weak.linter.style.lambdaSyntax=false",
+    "-D weak.linter.style.dollarSyntax=false",
+    "-D weak.linter.ppRoundtrip=false",
+    "-D weak.linter.minImports=true",
+    "-D weak.linter.minImports.increases=false",
+    "-D weak.linter.upstreamableDecl=false",
+    "-D weak.linter.style.commandStart=false",
+    "-D weak.pp.beta=true",
+  ]
 
 /-!
 ## Mathlib libraries
