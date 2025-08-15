@@ -138,6 +138,29 @@ def previousInstName : Name → Name
   | nm => nm
 
 /--
+`reproduceDeclName` simulates the calculation used in `Lean.Elab.mkDeclName` which, at its most
+basic, attaches a namespace to a name. Unlike `Lean.Elab.mkDeclName` however, it does not perform
+other checks and actions; in particular it does not check whether the name already exists. We can
+therefore use it safely to reproduce the name of a declaration which has already been added to
+the environment.
+-/
+private def reproduceDeclName
+    (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : CoreM Name := do
+  let view := extractMacroScopes shortName
+  let name := view.name
+  let isRootName := (`_root_).isPrefixOf name
+  let mut fullName := if isRootName then
+    { view with name := name.replacePrefix `_root_ Name.anonymous }.review
+  else
+    currNamespace ++ shortName
+  -- Apply name visibility rules: private names get mangled.
+  if modifiers.visibility matches .private then
+    fullName := mkPrivateName (← getEnv) fullName
+  unless (← getEnv).contains fullName do
+    throwError "failure"
+  return fullName
+
+/--
 `getDeclName cmd id` takes a `Syntax` input `cmd` and returns the `Name` of the declaration defined
 by `cmd`.
 -/
@@ -153,25 +176,12 @@ def getDeclName (cmd : Syntax) : CommandElabM Name := do
   let modifiers ← elabModifiers modifiers
   set s
   liftCoreM do (
-    -- Try applying the algorithm in `Lean.mkDeclName` to attach a namespace to the name.
-    -- Unfortunately calling `Lean.mkDeclName` directly won't work: it will complain that there is
-    -- already a declaration with this name.
-    (do
-      let shortName := id1.getId
-      let view := extractMacroScopes shortName
-      let name := view.name
-      let isRootName := (`_root_).isPrefixOf name
-      let mut fullName := if isRootName then
-        { view with name := name.replacePrefix `_root_ Name.anonymous }.review
-      else
-        ns ++ shortName
-      -- Apply name visibility rules: private names get mangled.
-      match modifiers.visibility with
-      | .private => return mkPrivateName (← getEnv) fullName
-      | _ => return fullName) <|>
     -- try the visible name or the current "nameless" `instance` name
-    realizeGlobalConstNoOverload id1 <|>
+    reproduceDeclName ns modifiers id1.getId <|>
     -- otherwise, guess what the previous "nameless" `instance` name was
+    reproduceDeclName ns modifiers id2.getId <|>
+    -- retry both of the above using a less targeted method
+    realizeGlobalConstNoOverload id1 <|>
     realizeGlobalConstNoOverload id2 <|>
     -- failing everything, use the current namespace followed by the visible name
     return ns ++ id1.getId)
