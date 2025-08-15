@@ -1,3 +1,5 @@
+note `Nat.find_le` and `Nat.find_min'`
+
 # mathlib4
 
 ![GitHub CI](https://github.com/leanprover-community/mathlib4/actions/workflows/build.yml/badge.svg?branch=master)
