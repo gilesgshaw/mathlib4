@@ -1,0 +1,51 @@
+
+Nat.find_le vs Nat.find_min'
+
+parameters in wrong order (i.e. variable with name matching different parameter)
+neglected to supply an optional parameter when there is a local with same name
+
+can code be run in a 'lower' monad
+
+forgetting a x! for a string, or adding one when a macro does it already
+
+-- generally: beware that functions such as `mkArrow'` do not support loose bound variables.
+
+-- attributes should not ignore kind
+-- default as opposed to .default
+-- can merge paramaters with same type (or no type)
+-- can omit parameter type
+
+-- logical:
+-- flag uses of choice
+-- oppurtunity for universe polymorphism
+-- encourage seperation of 'data' and 'proofs' (where possible keep data types and defenitions,
+--  at least at the lowest level, free from hypotheses)
+-- instance or theorem rather than def
+
+-- API:
+-- certain names should be protected
+-- using 'self' in an inductive definition can go horribly wrong
+-- we reccomend only using 'self' in projection-like definitions
+-- check definition is in a namespace allowing dot-access whenever possible
+-- facilitate a 'variable naming convention' (e.g. `x, y, ...`) for each type
+
+-- concision:
+-- unnecesary use of qualified names
+-- can be proved by rfl
+-- opportunity to use dot notation (expected-type and member-access)
+-- duplicate theorems
+
+-- style:
+-- prefer `λ` and `↦`, no preference for `$` and `<|`
+-- naming conventions
+-- indentation and spacing conventions
+-- use expected-type `.` notation, even on exported constructors, except for `Option`
+-- check theorem name for spelling etc (against generated name??)
+
+-- arguments in functions:
+-- if implicit, should be inferrable from next argument
+-- if explicit, should not be inferrable
+-- also depends on wherther we have expected type available...
+-- monad information can go at start
+-- instances can be implicit where apropriate...
+-- we prefer all arguments to have names
